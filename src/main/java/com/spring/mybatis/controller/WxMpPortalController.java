@@ -26,7 +26,7 @@ public class WxMpPortalController {
   @Autowired
   private WeixinService wxService;
   
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @ResponseBody
   @GetMapping(produces = "text/plain;charset=utf-8")

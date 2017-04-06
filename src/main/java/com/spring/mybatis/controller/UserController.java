@@ -13,7 +13,7 @@ import com.spring.mybatis.service.UserService;
 @RequestMapping("/users")
 public class UserController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Resource
 	private UserService userService;
@@ -23,7 +23,7 @@ public class UserController {
 		
 		logger.info("登录成功");
 		
-		return "wxeditor/index";
+		return "../wxeditor/index";
 	}
 
 	@RequestMapping("/loginFailure")

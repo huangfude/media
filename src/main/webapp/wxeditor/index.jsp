@@ -72,7 +72,7 @@
 			</div>
 			<div class="right">
 				<form id="eform" action="${ctx}/editor/save" method="post">
-					<input name="content" type="hidden" id="content">
+					<input name="content" type="hidden" id="content" value="${context }" />
 					<div id="bdeditor">
 						<script charset="utf-8" src="${wxepath}/ueditor/ueditor.config.js"
 							type="text/javascript"></script>
@@ -109,16 +109,22 @@
 			<div id="phoneclose"
 				style="top: 40px; width: 50px; height: 50px; right: 50px; font-size: 50px; font-weight: 600; position: absolute; cursor: pointer;">X</div>
 		</div>
-
+		
 		<div class="fullshowbox">全屏</div>
 		<div class="fullhidebox">退出</div>
 		<div id="phone">手机预览</div>
+		<div id="importdata">文本导入</div>
 		<div id="save">保存</div>
-
+		
+		<form id="frm">
+			<!-- 文本上传 -->
+			<input type="file" name="fileupload" style="FILTER: alpha(opacity=0); moz-opacity: 0; opacity: 0;" />
+		</form>
 	</div>
 
 
 	<script>
+		//全屏
 		function launchFullscreen(a) {
 			if (a.requestFullscreen) {
 				a.requestFullscreen()
@@ -136,6 +142,7 @@
 				}
 			}
 		};
+		//退出全屏
 		function exitFullscreen() {
 			if (document.exitFullscreen) {
 				document.exitFullscreen()
@@ -155,6 +162,7 @@
 					|| document.mozFullScreenElement || null
 		};
 		$(function() {
+			// 手机预览事件
 			$("#phoneclose").on('click', function() {
 				$("#previewbox").hide()
 			});
@@ -165,10 +173,20 @@
 					$("#previewbox").show();
 				}
 			});
-			$("#save").on('click', function() {
-				if (!UE.getEditor('editor').hasContents()){
-					alert('请先填写内容!');
+			//文本导入事件
+			$("#importdata").on('click', function() {
+				var ie = !-[1,];
+				if(ie){
+				   $('input:file').trigger('click').trigger('change');
 				}else{
+				   $('input:file').trigger('click');
+				}
+			});
+			// 保存事件
+			$("#save").on('click', function() {
+				if (!UE.getEditor('editor').hasContents()) {
+					alert('请先填写内容!');
+				} else {
 					$("#content").val(UE.getEditor('editor').getContent());
 					$("#eform").submit();
 				}
@@ -213,6 +231,7 @@
 					})
 				}
 			});
+			// 初始化编辑器
 			var c = UE.getEditor("editor", {
 				topOffset : 0,
 				autoFloatEnabled : false,
@@ -228,10 +247,15 @@
 								"justifyright", "justifycenter",
 								"justifyjustify", "insertorderedlist",
 								"insertunorderedlist", "horizontal",
-								"removeformat", "blockquote", ] ]
+								"removeformat", "blockquote", "insertimage",
+								"source" ] ]
 			});
 			c
 					.ready(function() {
+						//预先加载文档
+						if ($('#content').val() != '') {
+							c.setContent($('#content').val());
+						}
 						c
 								.addListener(
 										'contentChange',
@@ -256,7 +280,27 @@
 									$(this).find("a").removeClass("current")
 								});
 						$("#" + $(this).attr("tab")).show().siblings().hide()
+					});
+			// 文本导入提交
+			$('input:file').change(function(){
+				  var formData = new FormData($("#frm")[0]);
+				  $.ajax({
+				  url : "${ctx}/editor/importdata",
+						type: "POST",
+						data: formData,
+						contentType: false, //必须false才会避开jQuery对 formdata 的默认处理 XMLHttpRequest会对 formdata 进行正确的处理 
+						processData: false, //必须false才会自动加上正确的Content-Type
+						success: function(result) {
+							result = $.parseJSON(result);
+							if (result.success) {
+								alert("保存成功");
+								c.setContent(result.msg);
+							} else {
+								alert("保存失败!");
+							}
+						}
 					})
+			})
 		});
 	</script>
 </body>

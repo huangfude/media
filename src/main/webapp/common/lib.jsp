@@ -7,4 +7,5 @@
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
 <c:set var="ctx" value="<%=request.getContextPath() %>" />
 <c:set var="wxepath" value="${ctx }/wxeditor" />
+<c:set var="curl" value="http://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}" />
 

@@ -12,17 +12,23 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 
-	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+	<!--避免IE执行AJAX时，返回JSON出现下载文件 -->
+	<bean id="mappingJackson2HttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+				<value>text/json;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 采用SpringMVC自带的JSON转换工具，支持@ResponseBody注解 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<property name="messageConverters">
 			<list>
-				<bean
-					class="org.springframework.http.converter.StringHttpMessageConverter">
-					<constructor-arg>
-						<value>UTF-8</value>
-					</constructor-arg>
-				</bean>
-				<bean
-					class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+				<ref bean="mappingJackson2HttpMessageConverter" />    <!-- JSON转换器 -->
 			</list>
 		</property>
 	</bean>
@@ -41,5 +47,12 @@
 	<mvc:default-servlet-handler />
 
 	<mvc:resources mapping="/**" location="/" />
-
+	
+	<!-- 文件上传 -->
+    <bean id="multipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8" />
+        <property name="maxUploadSize" value="10485760000" />
+	    <property name="maxInMemorySize" value="40960" />
+    </bean>
 </beans>
